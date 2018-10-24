@@ -1,5 +1,29 @@
 let socket = io();
 
+function scrollToBottom () {
+    // Selectors
+    let messages = document.getElementById('messages')
+    let newMessage = messages.lastChild;
+    // Heights
+    console.log(newMessage);
+    
+    // let clientHeight = messages.prop('clientHeight');
+    // let scrollTop = messages.prop('scrollTop');
+    // let scrollHeight = messages.prop('scrollHeight');
+    let clientHeight = messages.clientHeight
+    let scrollTop = messages.scrollTop
+    let scrollHeight = messages.scrollHeight
+
+    let newMessageHeight = newMessage.clientHeight;
+    let lastMessageHeight = newMessage.previousSibling.clientHeight;
+
+    if(clientHeight + scrollTop + newMessageHeight + lastMessageHeight >= scrollHeight) {
+        // console.log('should scroll');
+        messages.scrollTop = scrollHeight;
+        
+    }
+}
+
 socket.on('connect', function () {
     console.log('Connected to server');
 });
@@ -23,14 +47,7 @@ socket.on('newMessage', function (message) {
     li.innerHTML = html;
     document.getElementById('messages').append(li);
 
-
-    // document.getElementById('messages').appendChild(document.createTextNode(html));
-
-    // console.log('newMessage', message);
-    // let li = document.createElement('li');
-    // li.appendChild(document.createTextNode(`${message.from} ${formattedTime}: ${message.text}`));
-
-    // document.getElementById('messages').append(li);
+    scrollToBottom();
 });
 
 socket.on('newLocationMessage', function (message) {
@@ -48,17 +65,8 @@ socket.on('newLocationMessage', function (message) {
     li.className = "message"
     li.innerHTML = html;
     document.getElementById('messages').append(li);
-    // let li = document.createElement('li');
-    // let a = document.createElement('a');
-    // a.setAttribute('target', '_blank')
 
-    // a.appendChild(document.createTextNode('My current Location'));
-
-    // li.appendChild(document.createTextNode(`${message.from} ${formattedTime}: `));
-    // a.setAttribute('href', message.url);
-
-    // li.append(a);
-    // document.getElementById('messages').append(li);
+    scrollToBottom();
 });
 
 document.getElementById('message-form').addEventListener('submit', function (e) {
