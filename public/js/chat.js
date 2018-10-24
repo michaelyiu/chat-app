@@ -52,6 +52,7 @@ socket.on('updateUserList', function (users) {
     })
 
     let userList = document.getElementById('users')
+    userList.innerHTML = "";
     userList.append(ol);
     console.log('Users list', users);
     
