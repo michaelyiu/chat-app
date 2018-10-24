@@ -4,12 +4,8 @@ function scrollToBottom () {
     // Selectors
     let messages = document.getElementById('messages')
     let newMessage = messages.lastChild;
+
     // Heights
-    console.log(newMessage);
-    
-    // let clientHeight = messages.prop('clientHeight');
-    // let scrollTop = messages.prop('scrollTop');
-    // let scrollHeight = messages.prop('scrollHeight');
     let clientHeight = messages.clientHeight
     let scrollTop = messages.scrollTop
     let scrollHeight = messages.scrollHeight
@@ -24,8 +20,22 @@ function scrollToBottom () {
     }
 }
 
+
+
 socket.on('connect', function () {
     console.log('Connected to server');
+    let params = getParams(window.location.search);
+
+    socket.emit('join', params, function (err) {
+        if (err) {
+            //kick the user back to the front page (root page)
+            alert(err);
+            window.location.href = '/';
+        } else {
+            console.log('No error');
+            
+        }
+    })    
 });
 
 socket.on('disconnect', function () {

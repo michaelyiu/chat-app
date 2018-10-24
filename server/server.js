@@ -4,6 +4,7 @@ const express = require('express');
 const socketIO = require('socket.io');
 
 const {generateMessage, generateLocationMessage} = require('./utils/message');
+const {isRealString} = require('./utils/validation');
 const publicPath = path.join(__dirname, '../public');
 const port = process.env.PORT || 3000;
 let app = express();
@@ -15,10 +16,24 @@ app.use(express.static(publicPath));
 io.on('connection', (socket) => {
     console.log('New user connected');
     
-    socket.emit('newMessage', generateMessage('Admin', 'Welcome to the Chat app!'));
 
-    socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user has joined!'));
+    socket.on('join', (params, callback) => {
+        if(!isRealString(params.name) || !isRealString(params.room)) {
+            callback('Name and room name are required.')
+        }
+        socket.join(params.room);
 
+        //LHS is the normal way to emit messages in relativity to an individual
+        //RHS if exists, is chaining the .to() method with emit to broadcast to specific rooms
+        //io.emit -> io.to('Avengers').emit
+        //socket.broadcast.emit -> socket.broadcast.to('Avengers').emit
+        //socket.emit
+
+        socket.emit('newMessage', generateMessage('Admin', 'Welcome to the Chat app!'));
+        socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin', `${params.name} has joined!`));
+
+        callback();
+    });
 
     socket.on('createMessage', (message, callback) => {
         console.log('create Message', message);

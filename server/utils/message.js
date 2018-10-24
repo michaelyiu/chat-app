@@ -16,6 +16,5 @@ let generateLocationMessage = (from, lat, lng) => {
     }
 };
 
-https://www.google.com/maps?q=44.0135839,-79.43662139999999
 
 module.exports = { generateMessage, generateLocationMessage };
