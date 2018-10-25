@@ -18,13 +18,21 @@
                 <input type="text" name="name" autofocus />
             </div>
             <div class="form-field">
-                <label>Room name</label>
-                <input type="text" name="room">
+                <label>Join existing Room</label>
+                <select id="room_select" name="room_select" >
+                    <option value=""></option>
+                </select>
+            </div>
+            <div class="form-field">
+                <label>Create a Room</label>
+                <input type="text" name="room_input">
             </div>
             <div class="form-field">
                 <button>Join</button>
             </div>
         </form>
     </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/chooseRoom.js"></script>
 </body>
 </html>

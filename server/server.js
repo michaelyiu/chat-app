@@ -5,35 +5,64 @@ const socketIO = require('socket.io');
 
 const {generateMessage, generateLocationMessage} = require('./utils/message');
 const {isRealString} = require('./utils/validation');
-const {Users} = require('./utils/users');
+const { Users } = require('./utils/users');
+const { Rooms } = require('./utils/rooms');
 const publicPath = path.join(__dirname, '../public');
 const port = process.env.PORT || 3000;
 let app = express();
 let server = http.createServer(app);
 let io = socketIO(server);
 let users = new Users();
+let rooms = new Rooms();
 
 app.use(express.static(publicPath));
 
 io.on('connection', (socket) => {
     console.log('New user connected');
+    socket.emit('loadRooms', rooms.getRoomList());
     
-
     socket.on('join', (params, callback) => {
-        if(!isRealString(params.name) || !isRealString(params.room)) {
+        console.log('list of params: ', params);
+        
+        let roomSelect = params.room_select;
+        let roomInput = params.room_input;
+        let room = roomInput || roomSelect;
+        console.log(room);
+        
+        // let room =
+        if(!isRealString(params.name) || !isRealString(room)) {
             return callback('Name and room name are required.')
         }
-        socket.id
         
+        if (isRealString(roomSelect) && isRealString(roomInput)) {
+            return callback('Need to create or select a room!')
+        }
+
         //throws user in the right room
-        socket.join(params.room);
+        socket.join(room);
 
         //removes the user from any potential previous rooms to throw them in the new room
         users.removeUser(socket.id);
         users.addUser(socket.id, params.name, params.room)
-
-        io.to(params.room).emit('updateUserList', users.getUserList(params.room));
         
+        //check if room exists.....
+        // if the room DOES NOT exist, we want to add a new room.
+        // if the room DOES exist, we want to update room
+        if(rooms.getRoom(room).length > 0){
+            //then room not found, so add it!
+            rooms.removeRoom(room);
+        }
+        else{
+        }
+        rooms.addRoom(users.getUserList(room), room);
+        // console.log(rooms.getRoom(params.room));
+        // console.log(rooms.getRoomList());
+        
+
+        io.to(room).emit('updateUserList', users.getUserList(room));
+        io.to(room).emit('updateRoomList', rooms.getRoomList());
+        
+
         //LHS is the normal way to emit messages in relativity to an individual
         //RHS if exists, is chaining the .to() method with emit to broadcast to specific rooms
         //io.emit -> io.to('Avengers').emit
@@ -41,7 +70,7 @@ io.on('connection', (socket) => {
         //socket.emit
         
         socket.emit('newMessage', generateMessage('Admin', 'Welcome to the Chat app!'));
-        socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin', `${params.name} has joined!`));
+        socket.broadcast.to(room).emit('newMessage', generateMessage('Admin', `${params.name} has joined!`));
 
         callback();
     });

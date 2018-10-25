@@ -59,6 +59,8 @@ socket.on('updateUserList', function (users) {
 })
 
 
+
+
 socket.on('newMessage', function (message) {
     let formattedTime = moment(message.createdAt).format('h:mm a');
     let template = document.getElementById('message-template').innerHTML
