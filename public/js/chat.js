@@ -1,6 +1,6 @@
 let socket = io();
 
-function scrollToBottom () {
+function scrollToBottom() {
     // Selectors
     let messages = document.getElementById('messages')
     let newMessage = messages.lastChild;
@@ -13,39 +13,39 @@ function scrollToBottom () {
     let newMessageHeight = newMessage.clientHeight;
     let lastMessageHeight = newMessage.previousSibling.clientHeight;
 
-    if(clientHeight + scrollTop + newMessageHeight + lastMessageHeight >= scrollHeight) {
-        // console.log('should scroll');
+    if (clientHeight + scrollTop + newMessageHeight + lastMessageHeight >= scrollHeight) {
         messages.scrollTop = scrollHeight;
-        
+
     }
 }
 
 
 
-socket.on('connect', function () {
+socket.on('connect', () => {
     console.log('Connected to server');
     let params = getParams(window.location.search);
 
-    socket.emit('join', params, function (err) {
+    socket.emit('join', params, (err) => {
         if (err) {
             //kick the user back to the front page (root page)
             alert(err);
             window.location.href = '/';
         } else {
             console.log('No error');
-            
+
         }
-    })    
+    })
 });
 
-socket.on('disconnect', function () {
+socket.on('disconnect', () => {
     console.log('Disconnected to server');
 });
 
-socket.on('updateUserList', function (users) {
+socket.on('updateUserList', (users) => {
+
     let ol = document.createElement('ol');
 
-    users.forEach(function (user) {
+    users.forEach((user) => {
         let li = document.createElement('li');
         li.innerHTML = user;
         ol.append(li);
@@ -54,8 +54,7 @@ socket.on('updateUserList', function (users) {
     let userList = document.getElementById('users')
     userList.innerHTML = "";
     userList.append(ol);
-    console.log('Users list', users);
-    
+
 })
 
 
@@ -64,13 +63,13 @@ socket.on('updateUserList', function (users) {
 socket.on('newMessage', function (message) {
     let formattedTime = moment(message.createdAt).format('h:mm a');
     let template = document.getElementById('message-template').innerHTML
-    
+
     let html = Mustache.render(template, {
         text: message.text,
         from: message.from,
         createdAt: formattedTime
     });
-    
+
     let li = document.createElement('li');
     li.className = "message";
     li.innerHTML = html;
@@ -114,7 +113,7 @@ document.getElementById('message-form').addEventListener('submit', function (e) 
 let locationButton = document.getElementById('send-location');
 
 locationButton.addEventListener('click', function () {
-    if(!navigator.geolocation){
+    if (!navigator.geolocation) {
         return alert('Geolocation not supported by your browser');
     }
 
@@ -128,7 +127,7 @@ locationButton.addEventListener('click', function () {
         socket.emit('createLocationMessage', {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude
-        });      
+        });
     }, function () {
         locationButton.removeAttribute('disabled');
         alert('Unable to fetch location.');
